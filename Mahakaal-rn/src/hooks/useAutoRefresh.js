@@ -16,7 +16,9 @@ export function useAutoRefresh(fetchFn, options = {}) {
 
   const doFetch = useCallback(() => {
     const f = fnRef.current;
-    if (typeof f === "function") f().catch(() => {});
+    if (typeof f !== "function") return;
+    const p = f();
+    Promise.resolve(p).catch(() => {});
   }, []);
 
   useFocusEffect(

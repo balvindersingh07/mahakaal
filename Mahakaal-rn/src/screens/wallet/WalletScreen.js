@@ -179,7 +179,7 @@ export default function WalletScreen() {
     }, [fetchBalance])
   );
   useAutoRefresh(
-    useCallback(() => { fetchBalance(); fetchScanner(); }, [fetchBalance, fetchScanner]),
+    useCallback(() => Promise.all([fetchBalance(), fetchScanner()]), [fetchBalance, fetchScanner]),
     { intervalMs: 15000 }
   );
 
