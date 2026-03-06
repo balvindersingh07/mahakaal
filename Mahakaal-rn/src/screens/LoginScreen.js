@@ -45,6 +45,11 @@ export default function LoginScreen() {
 
   const pickError = (e) => {
     const d = e?.response?.data;
+    const msg = (d?.detail || d?.error || d?.message || e?.message || "Login failed").toLowerCase();
+    const status = e?.response?.status;
+    if (status === 401 || msg.includes("password") || msg.includes("invalid") || msg.includes("credential")) {
+      return "Please enter correct password.";
+    }
     return d?.detail || d?.error || d?.message || e?.message || "Login failed";
   };
 
