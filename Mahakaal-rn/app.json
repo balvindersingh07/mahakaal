@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Mahakaal",
+    "slug": "mahakaal-rn",
+    "version": "1.0.0",
+    "scheme": "mahakaal",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.mahakaal.app",
+      "versionCode": 1,
+      "permissions": [],
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "ios": {
+      "bundleIdentifier": "com.mahakaal.app",
+      "buildNumber": "1"
+    },
+    "extra": {
+      "EXPO_PUBLIC_API_URL": "https://mahakaal-0aqy.onrender.com",
+      "eas": {
+        "projectId": "030e2b46-f332-494a-a16a-11678d0eb1b0"
+      }
+    }
+  }
+}

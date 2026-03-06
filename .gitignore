@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Build / Expo
+.expo/
+dist/
+build/
+*.log
+*.tmp
+
+# Android / iOS
+*.keystore
+*.jks
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
