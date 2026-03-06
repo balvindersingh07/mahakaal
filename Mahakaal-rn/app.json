@@ -24,10 +24,7 @@
       "buildNumber": "1"
     },
     "extra": {
-      "EXPO_PUBLIC_API_URL": "https://mahakaal-0aqy.onrender.com",
-      "eas": {
-        "projectId": "030e2b46-f332-494a-a16a-11678d0eb1b0"
-      }
+      "EXPO_PUBLIC_API_URL": "https://mahakaal-0aqy.onrender.com"
     }
   }
 }

@@ -56,9 +56,6 @@ paymentRequestSchema.index({ createdAt: -1 });
 paymentRequestSchema.index({ user: 1, createdAt: -1 });
 paymentRequestSchema.index({ status: 1, createdAt: -1 });
 
-// ✅ common admin query: status + createdAt
-paymentRequestSchema.index({ status: 1, createdAt: -1 });
-
 // ✅ paid listing fast (optional)
 paymentRequestSchema.index({ status: 1, paidAt: -1 });
 

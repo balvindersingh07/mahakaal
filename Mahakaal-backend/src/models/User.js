@@ -4,14 +4,14 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, trim: true },
-    phone: { type: String, required: true, unique: true, trim: true },
+    phone: { type: String, required: true, trim: true },
 
     password: { type: String, required: true }, // bcrypt hash
 
     wallet: { type: Number, default: 0, min: 0 }, // ✅ single source of truth (never negative)
 
     // 🔥 REFERRAL SYSTEM
-    referralCode: { type: String, unique: true, index: true, trim: true },
+    referralCode: { type: String, unique: true, trim: true },
     referredBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
 
     role: { type: String, default: "user", enum: ["user", "admin"] },
