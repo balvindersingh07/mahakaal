@@ -3,6 +3,12 @@
     "name": "Mahakaal",
     "slug": "mahakaal-rn",
     "version": "1.0.0",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/995a0146-e0dd-499c-be8d-5a86693737ba",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
     "scheme": "mahakaal",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

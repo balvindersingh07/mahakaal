@@ -6,6 +6,9 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import ContactUs from './pages/ContactUs'
 import AboutUs from './pages/AboutUs'
 
+// APK download - update this when new build is ready (or replace public/Mahakaal.apk)
+const APK_DOWNLOAD_URL = '/Mahakaal.apk'
+
 const navLinks = [
   { name: 'Home', href: '/', hash: '#home' },
   { name: 'Games', href: '/', hash: '#games' },
@@ -256,7 +259,7 @@ function Hero() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">Play Mahakaal <span className="bg-gradient-to-r from-mahakaal-purple via-mahakaal-violet to-mahakaal-orange bg-clip-text text-transparent">Online App</span></h1>
             <p className="mt-6 text-lg text-slate-700 max-w-xl font-medium">Play real number games like Gali, Desawar, Faridabad and more on one powerful platform.</p>
             <div className="flex flex-wrap gap-4 mt-8">
-              <a href="#download" className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white download-btn btn-ripple">
+              <a href={APK_DOWNLOAD_URL} download="Mahakaal.apk" className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white download-btn btn-ripple">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 Download Mahakaal App
               </a>
@@ -281,7 +284,7 @@ function ProGameCard({ game }) {
       <div className="absolute inset-0 bg-gradient-to-r from-mahakaal-purple/5 to-mahakaal-orange/5 opacity-0 group-hover:opacity-100" />
       <div className="relative p-6 flex items-center justify-between gap-4">
         <h3 className="font-bold text-slate-900 text-lg">{game}</h3>
-        <a href="#download" className="flex-shrink-0 px-5 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-mahakaal-purple to-mahakaal-orange hover:shadow-lg hover:scale-105 transition-all">PLAY</a>
+        <a href={APK_DOWNLOAD_URL} download="Mahakaal.apk" className="flex-shrink-0 px-5 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-mahakaal-purple to-mahakaal-orange hover:shadow-lg hover:scale-105 transition-all">PLAY</a>
       </div>
     </div>
   )
@@ -317,7 +320,7 @@ function APKDownloadSection() {
               ))}
             </ul>
             <div className="flex flex-wrap gap-4 mt-8">
-              <a href="#download" className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white bg-gradient-to-r from-mahakaal-purple to-mahakaal-orange hover:shadow-lg hover:scale-105 transition-all">
+              <a href={APK_DOWNLOAD_URL} download="Mahakaal.apk" className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white bg-gradient-to-r from-mahakaal-purple to-mahakaal-orange hover:shadow-lg hover:scale-105 transition-all">
                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 2.048a1.7 1.7 0 01.484.033 2.5 2.5 0 011.828 2.167c.16 1.414.16 2.674 0 4.088a2.5 2.5 0 01-1.828 2.167 1.7 1.7 0 01-.484.033h-1.5v8.5a1.5 1.5 0 01-3 0v-8.5h-2v8.5a1.5 1.5 0 01-3 0v-8.5H6.023a1.7 1.7 0 01-.484-.033 2.5 2.5 0 01-1.828-2.167c-.16-1.414-.16-2.674 0-4.088A2.5 2.5 0 015.539 2.08a1.7 1.7 0 01.484-.032h11zM6.5 5.5a1 1 0 100-2 1 1 0 000 2zm4 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
                 Download APK
               </a>

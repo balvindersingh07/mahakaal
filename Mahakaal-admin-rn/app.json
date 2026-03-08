@@ -3,6 +3,12 @@
     "name": "Mahakaal Admin",
     "slug": "mahakaal-admin-rn",
     "version": "1.0.0",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/fbcfe34b-dadd-4257-886c-339794ceb097",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mahakaaladminrn",
