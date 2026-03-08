@@ -134,12 +134,8 @@ export default function CrossingScreen() {
             <View style={{ width: 22 }} />
           </View>
 
-          {/* Top chips (horizontal scroll so small screens don't cut) */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chips}
-          >
+          {/* Top chips - wrap layout so all visible on every screen */}
+          <View style={styles.chipsWrap}>
             <Chip
               label="JANTRI"
               onPress={() =>
@@ -158,12 +154,12 @@ export default function CrossingScreen() {
                 clearCart();
                 setRows({});
               }}
-              style={[styles.chip, { backgroundColor: THEME.textMuted }]}
+              style={[styles.chip, styles.chipGray]}
               activeOpacity={0.85}
             >
               <Text style={styles.chipText} numberOfLines={1}>CLEAR ALL</Text>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
 
           {/* Body */}
           <ScrollView
@@ -301,16 +297,22 @@ const styles = StyleSheet.create({
   },
   headerTitle: { flex: 1, fontSize: 18, fontWeight: "800", color: THEME.textDark },
 
-  chips: { paddingHorizontal: 16, paddingVertical: 8, alignItems: "center" },
+  chipsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
   chip: {
     backgroundColor: THEME.primary,
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 8,
-    marginRight: 10,
     elevation: 1,
   },
-  chipText: { color: "#fff", fontWeight: "700" },
+  chipGray: { backgroundColor: THEME.textMuted },
+  chipText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 
   // ✅ body padding + room for bottom fixed bar
   bodyContent: {

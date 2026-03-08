@@ -18,7 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { THEME } from "../theme";
 
-const SPLASH_DURATION_MS = 5000; // 5 seconds
+const SPLASH_DURATION_MS = 3000; // 3 seconds
 const TOP = Platform.select({
   ios: 8,
   android: (StatusBar.currentHeight || 0) + 8,

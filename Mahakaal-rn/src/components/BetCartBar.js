@@ -1,5 +1,5 @@
 // src/components/BetCartBar.js
-// Shared bottom bar: cart summary, optional item list, Play button
+// Shared bottom bar: cart summary, balance, optional item list, Play button
 import React, { useState } from "react";
 import {
   View,
@@ -14,6 +14,7 @@ import {
 import { THEME } from "../theme";
 import { API } from "../api";
 import { useBetCart } from "../context/BetCartContext";
+import { useWallet } from "../context/WalletContext";
 
 const toMinutes = (t) => {
   if (!t) return null;
@@ -66,6 +67,8 @@ export default function BetCartBar({
     clearCart,
     removeItem,
   } = useBetCart();
+
+  const { balance, setBalance, refreshBalance } = useWallet();
 
   const gameId = gameIdProp || gameIdCtx || "";
   const gameName = gameNameProp || gameNameCtx || "Game";
@@ -129,6 +132,14 @@ export default function BetCartBar({
         const data = res?.data ?? res;
         const slipId = data?.slipId || data?.id || data?.bet?._id || "OK";
         results.push({ betType, slipId, count: apiItems.length, total: payload.total });
+
+        // ✅ Update balance instantly from API response (wallet deducted on backend)
+        const newWallet = data?.wallet;
+        if (Number.isFinite(newWallet)) {
+          setBalance(newWallet);
+        } else {
+          refreshBalance();
+        }
       }
 
       clearCart();
@@ -163,6 +174,8 @@ export default function BetCartBar({
     return it.num;
   };
 
+  const balanceStr = `₹${Number(balance || 0).toFixed(2)}`;
+
   return (
     <View style={styles.wrap}>
       <View style={styles.bar}>
@@ -173,6 +186,9 @@ export default function BetCartBar({
         >
           <Text style={styles.total}>
             ₹ {total.toLocaleString("en-IN")} / {count}
+          </Text>
+          <Text style={[styles.balanceText, { color: THEME.primary }]}>
+            Balance: {balanceStr}
           </Text>
           <Text style={styles.hint}>
             {expanded ? "Tap to collapse" : "Tap to view cart"}
@@ -244,6 +260,7 @@ const styles = StyleSheet.create({
   },
   summary: { flex: 1 },
   total: { fontSize: 18, fontWeight: "800", color: THEME.textDark },
+  balanceText: { fontSize: 13, fontWeight: "700", marginTop: 2 },
   hint: { fontSize: 11, color: THEME.textMuted, marginTop: 2 },
   playBtn: {
     backgroundColor: THEME.primary,

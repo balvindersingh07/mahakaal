@@ -10,10 +10,12 @@ import {
   SafeAreaView,
   ScrollView,
   useWindowDimensions,
+  RefreshControl,
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import api, { API, getUser, saveSession } from "../../api";
 import { THEME } from "../../theme";
+import { useWallet } from "../../context/WalletContext";
 
 function toSlug(name) {
   return String(name || "")
@@ -30,96 +32,89 @@ export default function HomeScreen() {
   const nav = useNavigation();
   const { width } = useWindowDimensions();
   const maxW = Math.min(width - 32, 480);
+  const { balance, setBalance } = useWallet();
   const [me, setMe] = useState(null);
-  const [balance, setBalance] = useState(0);
   const [gameTitle, setGameTitle] = useState("DISAWAR");
   const [winningNumbers, setWinningNumbers] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const POLL_MS = 15000;
+  // Poll every 5 sec so users get results as soon as admin declares
+  const POLL_MS = 5000;
 
-  // Refresh user + wallet on focus + poll for real-time sync
+  const fetchResults = useCallback(async (first) => {
+    if (!first) return;
+    const slug = toSlug(first.slug || first.gameId || first.name);
+    try {
+      const todayRes = await api.get("/results/today", {
+        params: { gameId: slug, limit: 20 },
+      });
+      const rows = todayRes?.data?.rows || todayRes?.data?.results || todayRes?.data?.data || [];
+      const nums = rows.map((r) => r.result || r.value).filter(Boolean);
+      return nums.length ? nums.join(", ") : "";
+    } catch {
+      return "";
+    }
+  }, []);
+
+  const runRefresh = useCallback(async () => {
+    let userSafe = null;
+    try {
+      setLoading(true);
+      const u = await getUser();
+      userSafe = u || null;
+      if (userSafe) setMe(userSafe);
+
+      if (!userSafe || !userSafe?.username) {
+        try {
+          const meRes = API?.me ? await API.me() : await api.get("/auth/me");
+          const fresh = meRes?.data ?? null;
+          if (fresh) {
+            userSafe = fresh;
+            await saveSession({ user: fresh });
+            setMe(fresh);
+          }
+        } catch {}
+      }
+
+      let bal = userSafe?.wallet ?? 0;
+      try {
+        const w = await API.wallet();
+        const apiBal = w?.data?.balance ?? w?.balance ?? w?.data?.wallet;
+        if (apiBal !== undefined) bal = apiBal;
+      } catch {}
+      setBalance(bal);
+
+      const g = await API.games();
+      const list = Array.isArray(g?.data) ? g.data : g?.games || [];
+      const first = list[0] || null;
+      if (first?.name) setGameTitle(first.name);
+
+      if (first) {
+        const nums = await fetchResults(first);
+        setWinningNumbers(nums || "");
+      }
+    } catch {
+      // keep previous state
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [fetchResults]);
+
+  // Refresh on focus + poll every 5 sec for fast result updates
   useFocusEffect(
     useCallback(() => {
-      let alive = true;
-
-      const run = async () => {
-        let userSafe = null;
-
-        try {
-          setLoading(true);
-
-          // 1) read cached user
-          const u = await getUser();
-          userSafe = u || null;
-          if (alive) setMe(userSafe);
-
-          // 1b) if user missing OR username missing -> fetch /me and cache it
-          if (!userSafe || !userSafe?.username) {
-            try {
-              const meRes = API?.me ? await API.me() : await api.get("/me");
-              const fresh = meRes?.data ?? null;
-
-              if (fresh) {
-                userSafe = fresh;
-                await saveSession({ user: fresh });
-                if (alive) setMe(fresh);
-              }
-            } catch {
-              // ignore
-            }
-          }
-
-          // ✅ 2) wallet (STABLE) -> use /me wallet first
-          if (alive) setBalance(userSafe?.wallet ?? 0);
-
-          // optional: if /wallet endpoint exists, overwrite balance
-          try {
-            const w = await API.wallet();
-            const bal = w?.data?.balance ?? w?.balance;
-            if (bal !== undefined && alive) setBalance(bal);
-          } catch {
-            // ignore
-          }
-
-          // 3) game name + today's winning numbers
-          try {
-            const g = await API.games();
-            const list = Array.isArray(g?.data) ? g.data : g?.games || [];
-            const first = list[0] || null;
-            if (alive && first?.name) setGameTitle(first.name);
-
-            if (alive && first) {
-              const slug = toSlug(first.slug || first.gameId || first.name);
-              try {
-                const todayRes = await api.get("/results/today", {
-                  params: { gameId: slug, limit: 10 },
-                });
-                const rows = todayRes?.data?.rows || todayRes?.data?.results || todayRes?.data?.data || [];
-                const nums = rows.map((r) => r.result || r.value).filter(Boolean);
-                if (alive && nums.length) setWinningNumbers(nums.join(", "));
-                else if (alive) setWinningNumbers("");
-              } catch {
-                if (alive) setWinningNumbers("");
-              }
-            }
-          } catch {
-            // ignore
-          }
-        } finally {
-          if (alive) setLoading(false);
-        }
-      };
-
-      run();
-      const tid = setInterval(run, POLL_MS);
-
-      return () => {
-        alive = false;
-        clearInterval(tid);
-      };
-    }, [])
+      runRefresh();
+      const tid = setInterval(runRefresh, POLL_MS);
+      return () => clearInterval(tid);
+    }, [runRefresh])
   );
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    runRefresh();
+  }, [runRefresh]);
 
   const goChangePassword = () => nav.navigate("ChangePassword");
   const goResultHistory = () => nav.navigate("ResultHistory");
@@ -130,6 +125,14 @@ export default function HomeScreen() {
         style={s.scroll}
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[THEME.primary]}
+            tintColor={THEME.primary}
+          />
+        }
       >
         <View style={[s.container, { maxWidth: maxW }]}>
           {/* top avatar logo */}
@@ -166,21 +169,26 @@ export default function HomeScreen() {
               <Text style={s.gradText}>🔐 Change Password</Text>
             </TouchableOpacity>
 
-            {/* game name + winning numbers */}
+            {/* game name + today's results - visible to all users, updates every 5 sec */}
             <View style={s.rowBox}>
               <View style={{ flex: 1 }}>
-                <Text style={s.rowLeft} numberOfLines={1}>
-                  {gameTitle}
-                </Text>
+                <View style={s.gameRow}>
+                  <View style={[s.statusDot, winningNumbers ? s.dotGreen : s.dotGrey]} />
+                  <Text style={s.rowLeft} numberOfLines={1}>
+                    {gameTitle}
+                  </Text>
+                </View>
                 {winningNumbers ? (
-                  <Text style={s.winningNums}>Winning: {winningNumbers}</Text>
-                ) : null}
+                  <Text style={s.winningNums}>Result: {winningNumbers}</Text>
+                ) : (
+                  <Text style={s.winningNumsPlaceholder}>
+                    {loading ? "Checking…" : "Results will appear when declared"}
+                  </Text>
+                )}
               </View>
-              {loading ? (
-                <ActivityIndicator size="small" />
-              ) : (
-                <Text style={s.rowRight}>{winningNumbers ? "✓" : "•"}</Text>
-              )}
+              {loading && !winningNumbers ? (
+                <ActivityIndicator size="small" color={THEME.primary} />
+              ) : null}
             </View>
 
             {/* More -> Result History */}
@@ -270,7 +278,11 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  rowLeft: { color: "#b91c1c", fontWeight: "900", letterSpacing: 1 },
-  winningNums: { fontSize: 12, color: "#059669", fontWeight: "700", marginTop: 4 },
-  rowRight: { color: "#b91c1c", fontWeight: "800", marginLeft: 10 },
+  gameRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  dotGreen: { backgroundColor: "#059669" },
+  dotGrey: { backgroundColor: "#9ca3af" },
+  rowLeft: { color: "#b91c1c", fontWeight: "900", letterSpacing: 1, flex: 1 },
+  winningNums: { fontSize: 14, color: "#059669", fontWeight: "800", marginTop: 6 },
+  winningNumsPlaceholder: { fontSize: 12, color: "#6b7280", marginTop: 6, fontStyle: "italic" },
 });

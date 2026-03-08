@@ -124,12 +124,8 @@ export default function NoToNo() {
                 {String(title).toUpperCase()}
               </Text>
 
-              {/* Tabs (horizontal scroll so no overflow) */}
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.tabs}
-              >
+              {/* Tabs - wrap layout so all visible on every screen */}
+              <View style={styles.tabsWrap}>
                 <Tag
                   text="JANTRI"
                   onPress={() => navigation.navigate("GamePlay", pass)}
@@ -140,7 +136,7 @@ export default function NoToNo() {
                 />
                 <Tag text="NO TO NO" active />
                 <Tag text="CLEAR ALL" gray onPress={() => { clearCart(); setItems([]); }} />
-              </ScrollView>
+              </View>
 
               <View style={styles.card}>
                 <View style={styles.row}>
@@ -318,7 +314,12 @@ const styles = StyleSheet.create({
 
   title: { fontSize: 20, fontWeight: "900", color: THEME.textDark, marginBottom: 8 },
 
-  tabs: { gap: 10, marginBottom: 8, alignItems: "center" },
+  tabsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 12,
+  },
   tag: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 8 },
   tagText: { color: "#fff", fontWeight: "800" },
 

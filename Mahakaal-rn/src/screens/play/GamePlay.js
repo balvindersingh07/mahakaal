@@ -18,6 +18,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { THEME } from "../../theme";
 import { useBetCart } from "../../context/BetCartContext";
 import BetCartBar from "../../components/BetCartBar";
+import { useResponsive } from "../../utils/responsive";
 
 const NUMBERS = [
   ...Array.from({ length: 99 }, (_, i) => String(i + 1).padStart(2, "0")),
@@ -84,6 +85,9 @@ const onlyDigits = (s) => (String(s || "").match(/\d+/g) || []).join("");
 export default function GamePlay() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { contentWidth } = useResponsive();
+  const gridWidth = Math.min(contentWidth, 520);
+  const cellSize = Math.floor(gridWidth / 10);
 
   const p = route?.params || {};
   const title = String(
@@ -186,12 +190,12 @@ export default function GamePlay() {
     setBets({});
   };
 
-  const Cell = memo(function Cell({ label, k }) {
+  const Cell = memo(function Cell({ label, k, size }) {
     const val = bets[k];
     const selected = !!val;
     return (
       <TouchableOpacity
-        style={[styles.cell, selected && styles.cellOn]}
+        style={[styles.cell, selected && styles.cellOn, { width: size, height: size }]}
         onPress={() => openAmount(k)}
         onLongPress={() => {
           if (bets[k]) {
@@ -261,12 +265,8 @@ export default function GamePlay() {
           </View>
         </View>
 
-        {/* Quick actions (horizontal scroll for small screens) */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chips}
-        >
+        {/* Quick actions - wrap layout so all buttons visible on every screen */}
+        <View style={styles.chipsWrap}>
           <Chip label="JANTRI" onPress={() => {}} />
           <Chip
             label="CROSSING"
@@ -278,12 +278,12 @@ export default function GamePlay() {
           />
           <TouchableOpacity
             onPress={clearAll}
-            style={[styles.chip, { backgroundColor: THEME.textMuted }]}
+            style={[styles.chip, styles.chipGray]}
             activeOpacity={0.85}
           >
             <Text style={styles.chipText} numberOfLines={1}>CLEAR ALL</Text>
           </TouchableOpacity>
-        </ScrollView>
+        </View>
 
         {/* Body */}
         <ScrollView
@@ -292,23 +292,23 @@ export default function GamePlay() {
         >
           {/* ✅ centered container so on wide screens it doesn't look full-stretch */}
           <View style={styles.container}>
-            <View style={styles.grid}>
+            <View style={[styles.grid, { width: gridWidth }]}>
               {NUMBERS.map((n) => (
-                <Cell key={n} label={n} k={`num:${n}`} />
+                <Cell key={n} label={n} k={`num:${n}`} size={cellSize} />
               ))}
             </View>
 
             <Text style={styles.sectionTitle}>Andar Haruf</Text>
-            <View style={styles.gridRow10}>
+            <View style={[styles.gridRow10, { width: gridWidth }]}>
               {DIGITS.map((d) => (
-                <Cell key={`a-${d}`} label={d} k={`andar:${d}`} />
+                <Cell key={`a-${d}`} label={d} k={`andar:${d}`} size={cellSize} />
               ))}
             </View>
 
             <Text style={[styles.sectionTitle, { marginTop: 18 }]}>Bahar Haruf</Text>
-            <View style={styles.gridRow10}>
+            <View style={[styles.gridRow10, { width: gridWidth }]}>
               {DIGITS.map((d) => (
-                <Cell key={`b-${d}`} label={d} k={`bahar:${d}`} />
+                <Cell key={`b-${d}`} label={d} k={`bahar:${d}`} size={cellSize} />
               ))}
             </View>
 
@@ -409,17 +409,22 @@ const styles = StyleSheet.create({
   dotGrey: { backgroundColor: THEME.textMuted },
   dotRed: { backgroundColor: THEME.danger },
 
-  // ✅ chips scroll
-  chips: { paddingHorizontal: 16, paddingVertical: 8, alignItems: "center" },
+  chipsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
   chip: {
     backgroundColor: THEME.primary,
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 8,
-    marginRight: 10,
     elevation: 1,
   },
-  chipText: { color: "#fff", fontWeight: "700" },
+  chipGray: { backgroundColor: THEME.textMuted },
+  chipText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 
   // ✅ bottom bar safe
   body: { paddingTop: 6, paddingBottom: 140 },
@@ -435,14 +440,11 @@ const styles = StyleSheet.create({
   grid: { flexDirection: "row", flexWrap: "wrap", marginTop: 8 },
 
   cell: {
-    width: "10%",
-    aspectRatio: 1,
     borderWidth: 1,
     borderColor: THEME.border,
     backgroundColor: THEME.card,
     alignItems: "center",
     justifyContent: "center",
-    maxWidth: 56, // ✅ prevents giant cells on wide screens
   },
   cellOn: { backgroundColor: "#ede9fe", borderColor: THEME.purple },
   cellLabel: { fontSize: 12, color: THEME.textDark, fontWeight: "700" },

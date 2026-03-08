@@ -23,6 +23,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../api";
 import { THEME } from "../../theme";
+import { useWallet } from "../../context/WalletContext";
 
 // ✅ prefer env like other screens, fallback same number
 const ADMIN_WA_NUMBER =
@@ -89,7 +90,7 @@ export default function WalletScreen() {
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const cardMaxW = Math.min(width - 32, 400);
-  const [balance, setBalance] = useState(0);
+  const { balance, setBalance } = useWallet();
   const [loading, setLoading] = useState(false);
   const [posting, setPosting] = useState(false);
 
@@ -126,7 +127,7 @@ export default function WalletScreen() {
       const n = Number(w);
 
       if (Number.isFinite(n)) {
-        setBalance(n);
+        setBalance(n); // ✅ update global WalletContext (shows instantly on Home, Play bar, etc.)
 
         // ✅ keep AsyncStorage user synced
         try {
@@ -389,12 +390,13 @@ const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: THEME.bg },
 
   wrap: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: "center",
     justifyContent: "flex-start",
     backgroundColor: THEME.bg,
     paddingTop: 20,
     paddingBottom: 24,
+    paddingHorizontal: 16,
   },
 
   cardWrap: { width: "100%", alignSelf: "center" },

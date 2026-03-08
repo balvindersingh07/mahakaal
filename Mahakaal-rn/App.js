@@ -9,6 +9,8 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator, useDrawerStatus } from "@react-navigation/drawer";
 
+import { WalletProvider } from "./src/context/WalletContext";
+
 import * as SplashScreen from "expo-splash-screen";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
@@ -210,6 +212,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
+        <WalletProvider>
         <NavigationContainer
           theme={AppTheme}
           linking={linking}
@@ -223,6 +226,7 @@ export default function App() {
             <Drawer.Screen name="Root" component={RootNavigatorScreen} />
           </Drawer.Navigator>
         </NavigationContainer>
+        </WalletProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );

@@ -15,11 +15,18 @@ export function useResponsive() {
   const isMedium = width >= 375 && width < 414;
   const isLarge = width >= 414;
 
+  // Horizontal padding (16 each side)
+  const hPad = 16;
+  const contentWidth = Math.max(280, width - hPad * 2);
+
   // Max content width - prevents over-stretch on tablets
-  const maxContentWidth = Math.min(width - 32, 480);
+  const maxContentWidth = Math.min(contentWidth, 560);
 
   // Responsive scale factor (1 on 375px, smaller on tiny screens)
   const scale = Math.max(0.85, Math.min(1.1, width / 375));
+
+  // Use wrap layout for chips/tabs when screen is narrow (all buttons visible)
+  const useChipWrap = width < 380;
 
   return {
     width,
@@ -28,6 +35,8 @@ export function useResponsive() {
     isMedium,
     isLarge,
     maxContentWidth,
+    contentWidth,
     scale,
+    useChipWrap,
   };
 }
