@@ -78,17 +78,15 @@ router.post("/scanners", adminAuth, async (req, res) => {
       payload.user = uid;
     }
 
-    // If user-specific: upsert latest record for that user
+    // Global (user=null) or user-specific: upsert
     let scanner = null;
-    if (uid) {
-      scanner = await Scanner.findOneAndUpdate(
-        { user: uid },
-        { $set: payload },
-        { upsert: true, new: true }
-      );
-    } else {
-      scanner = await Scanner.create(payload);
-    }
+    const filter = uid ? { user: uid } : { user: null };
+    payload.user = uid;
+    scanner = await Scanner.findOneAndUpdate(
+      filter,
+      { $set: payload },
+      { upsert: true, new: true }
+    );
 
     const populated = await Scanner.findById(scanner._id)
       .populate("user", "username phone")

@@ -187,9 +187,9 @@ export default function MenuDrawer({ navigation }) {
           />
 
           <Item
-            icon={<Ionicons name="qr-code" size={20} color={blue} />}
-            label="Add Scanner"
-            onPress={() => goRoot("AddScanner")}
+            icon={<Ionicons name="card-outline" size={20} color={blue} />}
+            label="UPI Deposit"
+            onPress={() => goRoot("Deposit")}
           />
 
           <Item

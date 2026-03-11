@@ -22,6 +22,7 @@ import {
   persistAdminToken,
 } from "../lib/api";
 import { THEME } from "../lib/theme";
+import { useAdminNotifications } from "../lib/useAdminNotifications";
 import { LinearGradient } from "expo-linear-gradient";
 
 const LOGO = require("../assets/icon-512.png");
@@ -80,6 +81,8 @@ export default function Layout() {
   }, [ready, pathname, authed]);
 
   const isAuthed = useMemo(() => !!getAdminToken() || authed, [authed]);
+
+  useAdminNotifications(isAuthed);
 
   const onLogout = async () => {
     try {
@@ -178,12 +181,13 @@ export default function Layout() {
         <Drawer.Screen name="referral-config" options={{ title: "Referral / Commission" }} />
         <Drawer.Screen name="payment-report" options={{ title: "Payment Report" }} />
         <Drawer.Screen name="payment-requests" options={{ title: "Payment Requests" }} />
+        <Drawer.Screen name="deposits" options={{ title: "UPI Deposits" }} />
+        <Drawer.Screen name="scanner" options={{ title: "Deposit QR" }} />
         <Drawer.Screen name="games-history" options={{ title: "Games History" }} />
         <Drawer.Screen name="results" options={{ title: "Results" }} />
         <Drawer.Screen name="wins" options={{ title: "Wins" }} />
         <Drawer.Screen name="bet-report" options={{ title: "Bet Report" }} />
         <Drawer.Screen name="combined-show" options={{ title: "Combined Show" }} />
-        <Drawer.Screen name="scanner" options={{ title: "Scanner (QR)" }} />
 
         <Drawer.Screen
           name="login"

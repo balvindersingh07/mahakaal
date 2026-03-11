@@ -49,6 +49,10 @@ const commissionRoutes = require("./routes/commission.routes");
 // ✅ WINNINGS
 const winningsRoutes = require("./routes/winnings.routes");
 
+// ✅ Deposit (user UPI deposit requests)
+const depositRoutes = require("./routes/deposit.routes");
+const adminDepositRoutes = require("./routes/admin.deposit.routes");
+
 // ✅ Upload (admin + user image upload)
 const uploadRoutes = require("./routes/upload.routes");
 const path = require("path");
@@ -163,6 +167,12 @@ app.use("/api", winningsRoutes);
 
 // Scanner (user)
 app.use("/api", scannerRoutes);
+
+// Deposit (user)
+app.use("/api", depositRoutes);
+
+// Admin Deposits
+app.use("/api/admin", adminDepositRoutes);
 
 // Upload (admin + user)
 app.use("/api", uploadRoutes);

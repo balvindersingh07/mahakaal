@@ -285,6 +285,29 @@ export const api = {
   resultsSet: (data: AnyObj) =>
     tryRequest(["/api/admin/results", "/admin/results"], { method: "POST", body: data }, true),
 
+  deposits: (params?: Record<string, string>) => {
+    const qs = params ? `?${new URLSearchParams(params).toString()}` : "";
+    return tryRequest(
+      [`/api/admin/deposits${qs}`, `/admin/deposits${qs}`],
+      { method: "GET" },
+      true
+    );
+  },
+
+  approveDeposit: (id: string) =>
+    tryRequest(
+      [`/api/admin/deposits/${id}/approve`, `/admin/deposits/${id}/approve`],
+      { method: "POST" },
+      true
+    ),
+
+  rejectDeposit: (id: string) =>
+    tryRequest(
+      [`/api/admin/deposits/${id}/reject`, `/admin/deposits/${id}/reject`],
+      { method: "POST" },
+      true
+    ),
+
   paymentRequests: (params?: Record<string, string>) => {
     const qs = params ? `?${new URLSearchParams(params).toString()}` : "";
     return tryRequest(
@@ -317,6 +340,9 @@ export const api = {
 
   deletePaymentRequest: (id: string) =>
     tryRequest([`/api/admin/payment-requests/${id}`, `/admin/payment-requests/${id}`], { method: "DELETE" }, true),
+
+  registerPushToken: (token: string) =>
+    tryRequest(["/api/admin/register-push-token", "/admin/register-push-token"], { method: "POST", body: { token } }, true),
 
   deleteResult: (id: string) =>
     tryRequest([`/api/admin/results/${id}`, `/admin/results/${id}`], { method: "DELETE" }, true),

@@ -33,6 +33,13 @@
     "plugins": [
       "expo-router",
       [
+        "expo-notifications",
+        {
+          "sounds": []
+        }
+      ],
+      "expo-image-picker",
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",

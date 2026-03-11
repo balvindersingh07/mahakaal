@@ -12,7 +12,6 @@ import {
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Image,
   ScrollView,
   useWindowDimensions,
 } from "react-native";
@@ -94,9 +93,6 @@ export default function WalletScreen() {
   const [loading, setLoading] = useState(false);
   const [posting, setPosting] = useState(false);
 
-  const [scanner, setScanner] = useState(null);
-  const [scannerLoading, setScannerLoading] = useState(false);
-
   const [askOpen, setAskOpen] = useState(false);
   const [mode, setMode] = useState("add"); // "add" | "withdraw"
   const [amount, setAmount] = useState("");
@@ -156,31 +152,17 @@ export default function WalletScreen() {
     }
   }, []);
 
-  const fetchScanner = useCallback(async () => {
-    try {
-      setScannerLoading(true);
-      const r = await api.get("/scanner");
-      setScanner(r?.data?.scanner || null);
-    } catch {
-      setScanner(null);
-    } finally {
-      setScannerLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     fetchBalance();
-    fetchScanner();
   }, [fetchBalance]);
 
   useFocusEffect(
     useCallback(() => {
       fetchBalance();
-      fetchScanner();
     }, [fetchBalance])
   );
   useAutoRefresh(
-    useCallback(() => Promise.all([fetchBalance(), fetchScanner()]), [fetchBalance, fetchScanner]),
+    useCallback(() => fetchBalance(), [fetchBalance]),
     { intervalMs: 15000 }
   );
 
@@ -255,23 +237,24 @@ export default function WalletScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["top", "left", "right", "bottom"]}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={s.wrap}>
+      <ScrollView
+        style={s.scroll}
+        contentContainerStyle={s.wrap}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={[s.cardWrap, { maxWidth: cardMaxW }]}>
-        <View style={s.card}>
+          <View style={s.card}>
           <View style={s.titleRow}>
             <Text style={s.title}>
               <Ionicons name="wallet-outline" size={20} /> My Wallet
             </Text>
 
             <TouchableOpacity
-              onPress={() => {
-                fetchBalance();
-                fetchScanner();
-              }}
-              disabled={loading || scannerLoading}
+              onPress={fetchBalance}
+              disabled={loading}
               style={s.refreshBtn}
             >
-              {loading || scannerLoading ? (
+              {loading ? (
                 <ActivityIndicator size="small" color={THEME.primary} />
               ) : (
                 <Ionicons name="refresh" size={18} color={THEME.primary} />
@@ -281,38 +264,13 @@ export default function WalletScreen() {
 
           <Text style={s.balance}>₹{Number(balance || 0).toFixed(2)}</Text>
 
-          {/* Scanner / QR section (Admin-controlled) */}
-          <View style={s.qrCard}>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-              <Text style={s.qrTitle}>
-                <Ionicons name="qr-code-outline" size={18} /> Pay via QR
-              </Text>
-              {scannerLoading ? <ActivityIndicator size="small" /> : null}
-            </View>
-
-            {scanner?.imageUrl ? (
-              <>
-                <Image
-                  source={{ uri: String(scanner.imageUrl) }}
-                  style={s.qrImg}
-                  resizeMode="contain"
-                />
-                {!!scanner?.upiId ? (
-                  <Text style={s.qrSub}>UPI ID: {String(scanner.upiId)}</Text>
-                ) : null}
-                {!!scanner?.note ? (
-                  <Text style={s.qrNote}>{String(scanner.note)}</Text>
-                ) : null}
-                <Text style={s.qrHint}>
-                  Scan the QR, make payment, then tap “Add Money via WhatsApp” to request wallet credit.
-                </Text>
-              </>
-            ) : (
-              <Text style={s.qrEmpty}>
-                QR not available right now. Please contact admin on WhatsApp.
-              </Text>
-            )}
-          </View>
+          <TouchableOpacity
+            style={[s.btn, { backgroundColor: THEME.primary }]}
+            onPress={() => navigation.navigate?.("Root", { screen: "Deposit" }) || navigation.navigate?.("Deposit")}
+            activeOpacity={0.9}
+          >
+            <Text style={s.btnTxt}>📷 UPI Deposit (Scan & Upload)</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity style={[s.btn, s.btnGreen]} onPress={() => openAsk("add")} activeOpacity={0.9}>
             <Text style={s.btnTxt}>💰 Add Money via WhatsApp</Text>
@@ -322,17 +280,14 @@ export default function WalletScreen() {
             <Text style={s.btnTxt}>💸 Withdraw Money</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={s.btnLink} onPress={() => navigation.navigate("Withdraw")} activeOpacity={0.8}>
-            <Text style={s.btnLinkTxt}>Need UPI form? Open Withdraw Screen →</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity style={s.btnLink} onPress={() => navigation.navigate("MyRequests")} activeOpacity={0.8}>
             <Text style={s.btnLinkTxt}>📋 My Payment Requests</Text>
           </TouchableOpacity>
+          </View>
         </View>
-        </View>
+      </ScrollView>
 
-        <Modal visible={askOpen} transparent animationType="fade" onRequestClose={() => setAskOpen(false)}>
+      <Modal visible={askOpen} transparent animationType="fade" onRequestClose={() => setAskOpen(false)}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
             style={s.modalWrap}
@@ -381,18 +336,16 @@ export default function WalletScreen() {
             </View>
           </KeyboardAvoidingView>
         </Modal>
-      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: THEME.bg },
+  scroll: { flex: 1 },
 
   wrap: {
-    flexGrow: 1,
     alignItems: "center",
-    justifyContent: "flex-start",
     backgroundColor: THEME.bg,
     paddingTop: 20,
     paddingBottom: 24,
@@ -433,27 +386,6 @@ const s = StyleSheet.create({
   btnGreen: { backgroundColor: THEME.primary },
   btnRed: { backgroundColor: "#dc2626" },
   btnTxt: { color: "#fff", fontWeight: "800" },
-
-  qrCard: {
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#f8fafc",
-    borderRadius: 14,
-    padding: 12,
-  },
-  qrTitle: { fontSize: 14, fontWeight: "900", color: THEME.primary },
-  qrImg: {
-    width: "100%",
-    height: 200,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    marginTop: 10,
-  },
-  qrSub: { marginTop: 8, fontWeight: "800", color: "#111827" },
-  qrNote: { marginTop: 4, color: "#374151", fontWeight: "600" },
-  qrHint: { marginTop: 6, fontSize: 11, color: "#6b7280", fontWeight: "700" },
-  qrEmpty: { marginTop: 8, color: "#6b7280", fontWeight: "700" },
 
   btnLink: { marginTop: 10, alignItems: "center" },
   btnLinkTxt: { color: THEME.pink, fontWeight: "800" },

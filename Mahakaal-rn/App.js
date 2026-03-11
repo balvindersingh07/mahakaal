@@ -30,6 +30,7 @@ import ResultHistoryScreen from "./src/screens/results/ResultHistoryScreen";
 import WinningsScreen from "./src/screens/winnings/WinningsScreen";
 import TxnStatusScreen from "./src/screens/status/TxnStatusScreen";
 import AddScannerScreen from "./src/screens/scanner/AddScannerScreen";
+import DepositScreen from "./src/screens/deposit/DepositScreen";
 import StatementScreen from "./src/screens/statement/StatementScreen";
 import HelpScreen from "./src/screens/help/HelpScreen";
 
@@ -82,6 +83,7 @@ const linking = Platform.OS === "web"
               Winnings: "winnings",
               TxnStatus: "status",
               AddScanner: "add-scanner",
+              Deposit: "deposit",
               Statement: "statement",
               Help: "help",
               ShareEarn: "share",
@@ -151,6 +153,7 @@ function RootNavigatorScreen() {
           <Stack.Screen name="Winnings" component={WinningsScreen} options={{ headerShown: false }} />
           <Stack.Screen name="TxnStatus" component={TxnStatusScreen} options={{ headerShown: false }} />
           <Stack.Screen name="AddScanner" component={AddScannerScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Deposit" component={DepositScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Statement" component={StatementScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Help" component={HelpScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ShareEarn" component={ShareEarnScreen} options={{ headerShown: false }} />

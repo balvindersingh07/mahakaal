@@ -207,6 +207,9 @@ exports.placeBet = async (req, res) => {
 
     await Bet.updateOne({ _id: bet._id }, { debitTxnId: debit?.txn?._id });
 
+    const { sendToAdmin } = require("../services/adminPush.service");
+    sendToAdmin("🎲 New Bet Placed", `₹${stake} on ${game.slug || game.name}`).catch(() => {});
+
     return res.json({
       success: true,
       bet,

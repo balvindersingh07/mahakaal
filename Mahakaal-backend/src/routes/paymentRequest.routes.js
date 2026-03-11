@@ -77,6 +77,10 @@ router.post("/payment-requests", auth, async (req, res) => {
       note,
     });
 
+    const { sendToAdmin } = require("../services/adminPush.service");
+    const msg = type === "add" ? `Add money ₹${n}` : `Withdraw request ₹${n}`;
+    sendToAdmin(type === "add" ? "💰 Add Money Request" : "💸 Withdraw Request", msg).catch(() => {});
+
     return res.json({ success: true, request: pr });
   } catch (err) {
     return res.status(500).json({ message: err?.message || "Server error" });

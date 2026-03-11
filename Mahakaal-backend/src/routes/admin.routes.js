@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
 const adminAuth = require("../middleware/adminAuth");
+const { addToken } = require("../services/adminPush.service");
 
 // ---------- helpers ----------
 async function findUserByIdOrPhone(userId, phone) {
@@ -325,6 +326,23 @@ router.post("/users/password", adminAuth, async (req, res) => {
     await u.save();
 
     return res.json({ success: true, ok: true, message: "Password updated" });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: e?.message || "Server error" });
+  }
+});
+
+/**
+ * Register admin push token for notifications (deposit, withdraw, bet)
+ * POST /api/admin/register-push-token
+ * body: { token: "ExponentPushToken[xxx]" }
+ */
+router.post("/register-push-token", adminAuth, async (req, res) => {
+  try {
+    const { token } = req.body || {};
+    if (token && typeof token === "string") {
+      addToken(token);
+    }
+    return res.json({ success: true });
   } catch (e) {
     return res.status(500).json({ success: false, message: e?.message || "Server error" });
   }

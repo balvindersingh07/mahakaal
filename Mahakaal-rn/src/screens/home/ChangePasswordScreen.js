@@ -73,10 +73,18 @@ export default function ChangePasswordScreen() {
       // ✅ best practice: force re-login after password change
       await clearSession();
 
-      if (navigation?.reset) {
-        navigation.reset({ index: 0, routes: [{ name: "Login" }] });
-      } else {
-        navigation.navigate("Login");
+      // Reset to Login - get root navigator (Root stack)
+      try {
+        const rootNav = navigation.getParent?.()?.getParent?.()?.getParent?.() || navigation.getParent?.()?.getParent?.();
+        if (rootNav?.reset) {
+          rootNav.reset({ index: 0, routes: [{ name: "Login" }] });
+        } else if (navigation?.reset) {
+          navigation.reset({ index: 0, routes: [{ name: "Root", params: { screen: "Login" } }] });
+        } else {
+          navigation.navigate("Root", { screen: "Login" });
+        }
+      } catch {
+        navigation.navigate("Root", { screen: "Login" });
       }
     } catch (e) {
       notify("Update Failed ❌", String(pickError(e)));

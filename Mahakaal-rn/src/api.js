@@ -167,6 +167,7 @@ export const API = {
 
   // ✅ FIXED: /me is under /api/auth/me in backend
   me: () => api.get("/auth/me"),
+  changePassword: (payload) => api.post("/auth/change-password", payload),
 
   // user
   wallet: () => api.get("/wallet"),
@@ -216,6 +217,10 @@ export const API = {
   // winnings
   winnings: (params = {}) => api.get("/winnings", { params }),
   betsWins: (params = {}) => api.get("/bets", { params: { status: "won", ...params } }),
+
+  // deposit (UPI QR)
+  depositRequest: (payload) => api.post("/deposit/request", payload),
+  depositMy: () => api.get("/deposit/my"),
 };
 
 export default api;

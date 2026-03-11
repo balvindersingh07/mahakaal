@@ -225,8 +225,8 @@ router.post("/change-password", auth, async (req, res) => {
         .json({ success: false, message: "New password must be different from old password" });
     }
 
-    // ✅ must load password explicitly
-    const user = await User.findById(req.user.id).select("+password");
+    // ✅ must load password explicitly (use req.userId - req.user from lean() may not have .id)
+    const user = await User.findById(req.userId || req.user?._id).select("+password");
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     if (String(user.status || "").toLowerCase() === "blocked") {
