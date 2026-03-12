@@ -13,21 +13,20 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { api } from "../lib/api";
 
 const BASE = (process.env.EXPO_PUBLIC_API_URL ?? "https://mahakaal-0aqy.onrender.com").trim().replace(/\/+$/, "");
 
 async function pickImageFromLibrary(): Promise<string | null> {
-  const ImagePicker = await import("expo-image-picker");
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (status !== "granted") {
     Alert.alert("Permission", "Camera roll access is needed to pick an image.");
     return null;
   }
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [1, 1],
+    mediaTypes: ["images"],
+    allowsEditing: false, // true hides confirm button on Android/tablet
     quality: 0.8,
     base64: true,
   });
@@ -75,14 +74,16 @@ export default function ScannerScreen() {
         return;
       }
       const res: any = await api.adminUploadImage(base64);
-      const url = res?.url;
+      const url = res?.url || res?.data?.url;
       if (url) {
         const full = url.startsWith("http") ? url : `${BASE}${url.startsWith("/") ? "" : "/"}${url}`;
         setImageUrl(full);
         Alert.alert("Uploaded", "QR image ready. Tap Save to update.");
+      } else {
+        Alert.alert("Upload", "No URL returned. Try again.");
       }
     } catch (e: any) {
-      Alert.alert("Upload", e?.message || "Upload failed");
+      Alert.alert("Upload Error", e?.message || "Upload failed");
     } finally {
       setSaving(false);
     }

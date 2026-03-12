@@ -7,7 +7,6 @@
 import { useEffect, useRef } from "react";
 import { Audio } from "expo-av";
 import * as Haptics from "expo-haptics";
-import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
 import { api, getAdminToken } from "./api";
@@ -55,8 +54,10 @@ export function useAdminNotifications(enabled: boolean) {
     if (!enabled || !getAdminToken()) return;
 
     const registerPushToken = async () => {
-      if (!Device.isDevice) return; // push needs physical device
+      if (!Device.isDevice) return;
+      if (Constants.appOwnership === "expo") return; // Push removed from Expo Go SDK 53
       try {
+        const Notifications = await import("expo-notifications");
         const { status: existing } = await Notifications.getPermissionsAsync();
         let final = existing;
         if (existing !== "granted") {
